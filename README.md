@@ -1,3 +1,31 @@
+System Setup
+
+    Clone the Repository: Clone the repository to your local machine:
+
+        git clone https://github.com/khalisarthak/Referral_System.git
+        cd Referral_System
+
+1. Code Setup(Backend)
+    - cd referral-system-backend
+
+    Install Dependencies: Install required packages:
+    - npm install
+
+    Database Configuration: Set up your database configuration (MySQL) in referral-system-backend\config\db.js
+
+    Start the Server: Start the server on a specified port (e.g., 5000):
+    - npm start
+    
+2. Code Setup(Frontend)
+    Clone the Repository: Clone the frontend repository:
+    - cd referral-system-ui
+
+    Install Dependencies: Install required packages:
+    - npm install
+
+    Run the Frontend: Start the frontend development server:
+    - npm start
+
 System Architecture Overview
 
     1. System Components
