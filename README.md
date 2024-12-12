@@ -20,7 +20,73 @@ System Architecture Overview
 
 API Documentation
 
-    1. Purchase API
+    1. Register API
+        Endpoint: POST /api/register
+        Method: POST
+        Description: This endpoint registers a new user into the system.
+        Request Body:
+        {
+        "name": "string",          // Name of the user
+        "email": "string",         // Email of the user (unique)
+        "password": "string",      // Password (hashed before saving)
+        "referredBy": "string",    // Email of the user who referred this user (optional)
+        "level": "integer"         // User level (optional, default is 1)
+        }
+
+        Response:
+            Success (201 Created):
+        
+                {
+                "message": "User registered successfully",
+                "user": {
+                    "id": "integer",
+                    "name": "string",
+                    "email": "string",
+                    "referredBy": "string",
+                    "level": "integer"
+                }
+                }
+
+            Failure (400 Bad Request or 500 Server Error):
+        
+            {
+            "message": "Error message"
+            }
+
+
+    2. Login API
+        Endpoint: POST /api/login
+        Method: POST
+        Description: This endpoint authenticates the user and provides a JWT token for further requests.
+        Request Body:
+    
+            {
+            "email": "string",         // Email of the user
+            "password": "string"       // Password of the user
+            }
+        Response:
+
+            Success (200 OK):
+        
+                {
+                "message": "Login successful",
+                "token": "string",       // JWT token for authorization
+                "user": {
+                    "id": "integer",
+                    "name": "string",
+                    "email": "string",
+                    "level": "integer"
+                }
+                }
+
+            Failure (401 Unauthorized or 500 Server Error):
+            
+                {
+                "message": "Invalid email or password"
+                }
+
+
+    3. Purchase API
         Endpoint: POST /api/purchase
         Method: POST
         Description: This endpoint processes a purchase made by the user, calculates earnings for the referred users (if applicable), and stores purchase data in the database.
@@ -30,12 +96,13 @@ API Documentation
             "userId": "integer",           // ID of the user making the purchase
             "purchaseAmount": "float"      // Amount of the purchase
             }
-            Response:
+        Response:
             Success (200 OK):
         
                 {
                 "message": "Purchase processed successfully"
                 }
+
             Failure (400 or 500):
             
                 {
@@ -43,7 +110,7 @@ API Documentation
                 }
 
 
-    2. Get Purchase Details API
+    4. Get Purchase Details API
         Endpoint: GET /api/getPurchaseDetails/:userId
         Method: GET
         Description: This endpoint retrieves all the purchase details made by the specified user.
@@ -67,7 +134,7 @@ API Documentation
                 "message": "Error fetching purchase details"
                 }
 
-    3. Get Earning Details API
+    5. Get Earning Details API
 
         Endpoint: GET /api/getEarningDetails/:userId
         Method: GET
@@ -93,3 +160,76 @@ API Documentation
             {
             "message": "Error fetching earning details"
             }
+
+System Architecture Diagram
+
+                        +---------------------------+
+                        |       User's Browser      |
+                        |     (React Frontend)      |
+                        +---------------------------+
+                                  |
+                        +---------------------------+
+                        |       REST API Layer       |
+                        |  (Node.js + Express.js)   |
+                        +---------------------------+
+                          |            |          |
+                +----------+           |          +-----------+
+                |                      |                      |
+  +----------------------+   +-----------------------+    +--------------------+
+  |     User Table       |   |    Purchase Table     |    |   Earnings Table   |
+  |----------------------|   |-----------------------|    |--------------------|
+  | userId               |   | purchaseId            |    | earningId          |
+  | name                 |   | userId                |    | userId             |
+  | email                |   | purchaseAmount        |    | referredUserId     |
+  | password (hashed)    |   | createdAt             |    | directEarnings     |
+  | referredBy           |   | updatedAt             |    | indirectEarnings   |
+  | level                |   +-----------------------+    | createdAt          |
+  +----------------------+                                | updatedAt          |
+                                                          +--------------------+
+                                    |   
+                        +---------------------------+
+                        | WebSocket Notification    |
+                        +---------------------------+
+
+
+
+Flow of Operations
+
+    1. User Registration and Login
+        - Users register through the frontend by providing their name, email, and password.
+        - Backend validates the data and stores user details in the User Table, hashing the password for security.
+        - During login, the system verifies the user’s email and password and issues a JWT token for authenticated access.
+
+        User Table Details
+
+        Fields:
+
+            - userId: Primary key, auto-incremented.
+            - name: Name of the user.
+            - email: Unique email for the user.
+            - password: Hashed password for secure login.
+            - referredBy: Email of the referring user (if any).
+            - level: User’s level in the hierarchy.
+
+        Operations:
+
+            - Registration: Adds a new user to the table.
+            - Login: Authenticates the user and generates a JWT token.
+            - Referral Tracking: Links users via the referredBy field.
+
+
+    2. Purchase Process
+        - User initiates a purchase via the frontend.
+        - The backend processes the purchase:
+            - Saves purchase details in the Purchases table.
+            - Calculates and updates earnings in the Earnings table.
+            - Sends WebSocket notifications to parent users.
+        - The response is returned to the frontend with a success or failure message.
+
+    3. Real-Time Earnings Notification
+        - When a new purchase is made, the backend sends real-time WebSocket notifications to parent users about the earnings (both direct and indirect).
+        - The frontend listens to these notifications and updates the earnings display.
+
+    4. Viewing Purchase and Earnings Data
+        - Users can view their purchase history and earnings by accessing the appropriate API endpoints (/getPurchaseDetails/:userId and /getEarningDetails/:userId).
+        - The frontend makes these API calls to display the data in tabular format.
