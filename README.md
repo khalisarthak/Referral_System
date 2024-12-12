@@ -163,33 +163,40 @@ API Documentation
 
 System Architecture Diagram
 
-                        +---------------------------+
-                        |       User's Browser      |
-                        |     (React Frontend)      |
-                        +---------------------------+
-                                  |
-                        +---------------------------+
-                        |       REST API Layer       |
-                        |  (Node.js + Express.js)   |
-                        +---------------------------+
-                          |            |          |
-                +----------+           |          +-----------+
-                |                      |                      |
-  +----------------------+   +-----------------------+    +--------------------+
-  |     User Table       |   |    Purchase Table     |    |   Earnings Table   |
-  |----------------------|   |-----------------------|    |--------------------|
-  | userId               |   | purchaseId            |    | earningId          |
-  | name                 |   | userId                |    | userId             |
-  | email                |   | purchaseAmount        |    | referredUserId     |
-  | password (hashed)    |   | createdAt             |    | directEarnings     |
-  | referredBy           |   | updatedAt             |    | indirectEarnings   |
-  | level                |   +-----------------------+    | createdAt          |
-  +----------------------+                                | updatedAt          |
-                                                          +--------------------+
-                                    |   
-                        +---------------------------+
-                        | WebSocket Notification    |
-                        +---------------------------+
+[User's Browser (React Frontend)]
+              |
+      +----------------+
+      | REST API Layer |
+      | (Node.js)      |
+      +----------------+
+              |
+       --------------------
+      |                  |
++--------------+   +----------------+  
+| User Table   |   | Purchase Table |  
++--------------+   +----------------+  
+| userId       |   | purchaseId     |  
+| name         |   | userId         |  
+| email        |   | purchaseAmount |  
+| password     |   | createdAt      |  
+| referredBy   |   | updatedAt      |  
+| level        |   +----------------+  
++--------------+  
+              |
+      +-----------------+
+      | Earnings Table  |
+      +-----------------+
+      | earningId       |
+      | userId          |
+      | referredUserId  |
+      | directEarnings  |
+      | indirectEarnings|
+      | createdAt       |
+      | updatedAt       |
+      +-----------------+
+              |
+   [WebSocket Notifications]
+
 
 
 
