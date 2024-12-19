@@ -59,12 +59,3 @@ router.post('/login', async (req, res) => {
 
 module.exports = router;
 
-// Generate a token (optional, if using authentication tokens)
-    // Example: JWT token generation
-    /*
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-    */
